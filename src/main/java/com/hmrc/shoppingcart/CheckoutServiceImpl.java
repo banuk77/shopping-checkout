@@ -1,8 +1,12 @@
 package com.hmrc.shoppingcart;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.hmrc.shoppingcart.model.Product;
+import com.hmrc.shoppingcart.promotion.PromotionFactory;
+import com.hmrc.shoppingcart.promotion.PromotionsService;
 
 public class CheckoutServiceImpl implements CheckoutService
 {
@@ -16,12 +20,29 @@ public class CheckoutServiceImpl implements CheckoutService
       return 0.0f;
     }
 
+    HashMap<Product, AtomicInteger> productQuantities = new HashMap<Product, AtomicInteger>();
+
+    // first find the number of products
     for (Product p : products)
     {
-      cost += p.getUnitPrice() * 100;
+      AtomicInteger prodCount = productQuantities.get(p);
+      if (prodCount == null)
+      {
+        prodCount = new AtomicInteger(0);
+      }
+      prodCount.incrementAndGet();
+
+      productQuantities.put(p, prodCount);
+
     }
 
-    cost = cost / 100;
+    for (Product p : productQuantities.keySet())
+    {
+      PromotionsService promotionsService = PromotionFactory.getProductPromotionService(p);
+      float offerPrice = promotionsService.getProductCostForQuantity(p,
+          productQuantities.get(p).get());
+      cost += offerPrice;
+    }
 
     return cost;
   }
