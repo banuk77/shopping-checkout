@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Test;
 
 import com.hmrc.shoppingcart.model.Product;
 
@@ -18,9 +19,10 @@ public class CheckoutServiceTest
   public void setup()
   {
     // TODO implement the CheckoutServiceImpl
-    CheckoutService checkoutService = new CheckoutServiceImpl();
+    checkoutService = new CheckoutServiceImpl();
   }
 
+  @Test
   public void testGetTotalCost()
   {
 
